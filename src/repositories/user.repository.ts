@@ -26,5 +26,19 @@ export class UserRepository {
     user.team = team;
     return await this.repo.save(user);
   }
+
+async updateUser(id: number, data: Partial<User>) {
+  const user = await this.findById(id);
+  if (!user) throw new Error("El usuario no existe");
+
+  Object.assign(user, data);
+  return await this.repo.save(user);
+}
+
+async deleteUser(id: number) {
+  await this.repo.delete(id);
+}
+
+
 }
 

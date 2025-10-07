@@ -32,4 +32,13 @@ export class TaskRepository {
   async deleteTask(id: number) {
     await this.repo.delete(id);
   }
+
+  async updateTask(id: number, data: Partial<Task>) {
+  const task = await this.repo.findOne({ where: { id } });
+  if (!task) throw new Error("La tarea no existe");
+
+  Object.assign(task, data);
+  return await this.repo.save(task);
+}
+
 }

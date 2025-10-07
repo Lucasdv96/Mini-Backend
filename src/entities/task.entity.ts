@@ -15,6 +15,9 @@ export class Task {
 
   @Column({ default: false })
   completed!: boolean;
+  
+  @Column({type: "text",default:"media"})
+  priority!: string;
 
   @ManyToOne(() => User, (user) => user.tasks, { eager: true })
   user!: User;

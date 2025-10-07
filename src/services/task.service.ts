@@ -51,4 +51,21 @@ export class TaskService {
 
     await this.taskRepo.deleteTask(taskId);
   }
+
+async updateTask(id: number, actorUserId: number, data: { title?: string; description?: string; priority?: string }) {
+  const task = await this.taskRepo.findOneById(id);
+  if (!task) throw new Error("La tarea no existe");
+
+  const actor = await this.userService.findUserById(actorUserId);
+  if (!actor) throw new Error("El usuario no existe");
+  
+  if (actor.rol !== "admin") throw new Error("Solo los admins pueden modificar tareas");
+  if (task.team?.id !== actor.team?.id) {
+    throw new Error("Solo admins del mismo equipo pueden modificar esta tarea");
+  }
+
+  return await this.taskRepo.updateTask(id, data);
+}
+
+
 }
