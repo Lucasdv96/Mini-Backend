@@ -1,7 +1,9 @@
 import { Request, Response } from "express";
 import { TaskService } from "../services/task.service";
+import { UserService } from "../services/user.service";
 
 const taskService = new TaskService();
+const userService = new UserService();
 
 export class TaskController {
   create = async (req: Request, res: Response) => {
@@ -14,13 +16,15 @@ export class TaskController {
     }
   };
 
-  getAll = async (_req: Request, res: Response) => {
+  getAll = async (req: Request, res: Response) => {
     try {
-      const tasks = await taskService.getAllTasks();
-      res.json(tasks);
-    } catch (err: any) {
-      res.status(500).json({ message: "Error al obtener tareas" });
+      const userId = Number(req.params.userId);
+      const tasks = await taskService.getAllTasks(userId);
+      return res.json(tasks);
+    }catch (err: any) {
+      return res.status(400).json({ message: err.message });
     }
+      
   };
 
   markCompleted = async (req: Request, res: Response) => {
