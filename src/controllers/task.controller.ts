@@ -18,25 +18,28 @@ export class TaskController {
 
   getAll = async (req: Request, res: Response) => {
     try {
-      const userId = Number(req.params.userId);
+      const userId = Number(req.params.id);
+      if(!userId || isNaN(userId)) {
+        return res.status(400).json({ message: "userId Invalido" });
+      }
       const tasks = await taskService.getAllTasks(userId);
-      return res.json(tasks);
-    }catch (err: any) {
+      return res.json(tasks);     
+    } catch (err: any) {
       return res.status(400).json({ message: err.message });
     }
       
   };
 
-  markCompleted = async (req: Request, res: Response) => {
-    try {
-      const id = Number(req.params.id);
-      const { userId } = req.body;
-      const task = await taskService.markTaskComplete(id, Number(userId));
-      return res.json(task);
-    } catch (err: any) {
-      return res.status(400).json({ message: err.message });
-    }
-  };
+  // markCompleted = async (req: Request, res: Response) => {
+  //   try {
+  //     const id = Number(req.params.id);
+  //     const { userId } = req.body;
+  //     const task = await taskService.markTaskComplete(id, Number(userId));
+  //     return res.json(task);
+  //   } catch (err: any) {
+  //     return res.status(400).json({ message: err.message });
+  //   }
+  // };
 
   delete = async (req: Request, res: Response) => {
     try {

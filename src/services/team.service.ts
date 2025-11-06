@@ -1,24 +1,39 @@
 import { Team } from "../entities/team.entity";
 import { TeamRepository } from "../repositories/team.repository";
 import { UserRepository } from "../repositories/user.repository";
+import { MembershipService } from "../services/membership.service";
+import { RolMembresia } from "../entities/membership.entity";
 
 export class TeamService {
   private teamRepo = new TeamRepository();
   private userRepo = new UserRepository();
+  private membershipService = new MembershipService();
 
-  async createTeam(name: string): Promise<Team> {
-    if (!name || !name.trim()) throw new Error("El nombre del equipo no puede estar vacío");
-    return await this.teamRepo.create(name);
+  async createTeam(name: string, propietarioId: number): Promise<Team> {
+  if (!name || !name.trim()) throw new Error("El nombre del equipo no puede estar vacío");
+
+  const propietario = await this.userRepo.findById(propietarioId);
+  if (!propietario) throw new Error("El usuario propietario no existe");
+
+  console.log(`Creando equipo: ${name} con propietario: ${propietarioId}`); // Debug
+
+  const team = await this.teamRepo.create(name, propietario);
+  console.log(`Equipo creado con ID: ${team.id}`); // Debug
+
+  // Crear automáticamente la membresía del propietario
+  try {
+    await this.membershipService.crearMembresiaPropietario(team.id, propietarioId);
+    console.log(`Membresía de propietario creada para usuario ${propietarioId} en equipo ${team.id}`); // Debug
+  } catch (error) {
+    console.error('Error creando membresía:', error);
+    throw error;
   }
 
-  async addUserToTeam(teamId: number, userId: number) {
-    const team = await this.teamRepo.findById(teamId);
-    if (!team) throw new Error("Equipo no encontrado");
+  return team;
+}
 
-    const user = await this.userRepo.findById(userId);
-    if (!user) throw new Error("Usuario no encontrado");
-
-    return await this.userRepo.assignTeam(userId, team);
+  async addUserToTeam(teamId: number, userId: number, actorUserId: number) {
+    return await this.membershipService.agregarMiembro(teamId, userId, RolMembresia.MIEMBRO, actorUserId);
   }
 
   async getTeamById(teamId: number) {
@@ -29,47 +44,38 @@ export class TeamService {
     return await this.teamRepo.getAll();
   }
 
-  //NUEVO: UPDATE
   async updateTeam(teamId: number, name: string, actorUserId: number): Promise<Team> {
-    //valida que el nombre no esté vacío
     if (!name || !name.trim()){ 
       throw new Error("El nombre del equipo no puede estar vacío");
     }
       
-    //verificar que el equipo existe
     const team = await this.teamRepo.findById(teamId);
-    if (!team) throw new Error("Equipo no encontrado"); 
+    if (!team) throw new Error("Equipo no encontrado");
 
-    //verificar que el usuario que hace la petición existe
-    const actorUser = await this.userRepo.findById(actorUserId);
-    if (!actorUser) throw new Error("Usuario que realiza la petición no encontrado");
-
-    // verificar que el usuario que hace la petición es admin
-    /*
-    if (actorUser.rol !== "admin") {
-      throw new Error("No tienes permisos para actualizar el equipo");
-    }*/
-
-    //verificar que el admin pertenece al equipo que quiere actualizar
-    if(actorUser.team?.id !== team.id){
-      throw new Error("No puedes actualizar un equipo al que no perteneces");
+  
+    const userMembership = await this.membershipService.obtenerMembresia(teamId, actorUserId);
+    if (!userMembership || userMembership.rol !== RolMembresia.PROPIETARIO) {
+      throw new Error("No puedes actualizar un equipo si no eres propietario");
     }
 
-    // actualizar el equipo
-    const updateTeam = await this.teamRepo.update(teamId, name);
-    if(!updateTeam){
-      throw new Error("No se pudo actualizar el equipo");
-    }
-    return updateTeam;
+    return await this.teamRepo.update(teamId, name);
   }
 
-  //NUEVO: DELETE
-  async deleteTeam(teamId: number, actorUserId: number): Promise<Team> {
-    // eliminar el equipo
-    const deletedTeam = await this.teamRepo.delete(teamId); 
-    if(!deletedTeam){
-      throw new Error("No se pudo eliminar el equipo");
+  async deleteTeam(teamId: number, actorUserId: number): Promise<void> {
+    const userMembership = await this.membershipService.obtenerMembresia(teamId, actorUserId);
+    if (!userMembership || userMembership.rol !== RolMembresia.PROPIETARIO) {
+      throw new Error("No puedes eliminar un equipo si no eres propietario");
     }
-    return deletedTeam;
+
+    await this.teamRepo.delete(teamId);
   } 
+
+  async getUsuariosDelEquipo(teamId: number) {
+  const team = await this.teamRepo.findById(teamId);
+  if (!team) throw new Error("Equipo no encontrado");
+  
+  // Obtener usuarios a través de las membresías
+  const membresias = await this.membershipService.listarMiembros(teamId);
+  return membresias.map(membresia => membresia.user);
+}
 }

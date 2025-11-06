@@ -12,6 +12,10 @@ CONFIGURAR TS:
 (bash)
 npx tsc --init
 
+dependecias JWT:
+npm install bcryptjs jsonwebtoken
+npm install @types/bcryptjs @types/jsonwebtoken -D
+
 
 PROBAR :
 (bash)

@@ -6,8 +6,8 @@ const teamService = new TeamService();
 export class TeamController {
   create = async (req: Request, res: Response) => {
     try {
-      const { name } = req.body;
-      const team = await teamService.createTeam(name);
+      const { name, propietarioId } = req.body; // ← Agregar propietarioId
+      const team = await teamService.createTeam(name, propietarioId);
       return res.status(201).json(team);
     } catch (err: any) {
       return res.status(400).json({ message: err.message });
@@ -18,7 +18,13 @@ export class TeamController {
     try {
       const teamId = Number(req.params.teamId);
       const userId = Number(req.params.userId);
-      const updatedUser = await teamService.addUserToTeam(teamId, userId);
+      const { actorUserId } = req.body;
+
+      if (!actorUserId) {
+        return res.status(400).json({ message: "Falta actorUserId en el body" });
+      }
+
+      const updatedUser = await teamService.addUserToTeam(teamId, userId, actorUserId);
       return res.json(updatedUser);
     } catch (err: any) {
       return res.status(400).json({ message: err.message });
@@ -43,23 +49,23 @@ export class TeamController {
       return res.status(500).json({ message: "Error al obtener equipos" });
     }
   };
-  //NUEVO: UPDATE
+
   update = async (req: Request, res: Response) => {
     try {
       const teamId = Number(req.params.id);
-      const { name, actorUserId } = req.body; // actorUserId es el ID del usuario que realiza la petición
+      const { name, actorUserId } = req.body;
       const updatedTeam = await teamService.updateTeam(teamId, name, actorUserId);
       return res.json(updatedTeam);
     } catch (err: any) {
       return res.status(400).json({ message: err.message });
     }
   };
-  //NUEVO: DELETE
+
   delete = async (req: Request, res: Response) => {
     try {
       const teamId = Number(req.params.id);
-      const userId = Number(req.params.userId);
-      await teamService.deleteTeam(teamId, userId); // actorUserId es el ID del usuario que realiza la petición
+      const { actorUserId } = req.body; // ← Cambiar de params a body
+      await teamService.deleteTeam(teamId, actorUserId);
       return res.status(204).send();
     } catch (err: any) {
       return res.status(400).json({ message: err.message });

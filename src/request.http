@@ -1,153 +1,634 @@
-##CREACIONES 
+### ============================================
+### 1. CONFIGURACIÓN INICIAL - USUARIOS BASE
+### ============================================
 
-### Crear un admin
-
+### Crear Admin Principal
 POST http://localhost:3000/users
 Content-Type: application/json
 
 {
-
-  "name": "adminX",
-
+  "name": "Admin Principal",
   "rol": "admin"
-
 }
 
-
-### Crear un usuario
-
+### Crear Usuario Normal 1
 POST http://localhost:3000/users
 Content-Type: application/json
 
 {
-
-  "name": "Ramiro",
-
-  "rol": "user",
-
-  "teamId": 2
+  "name": "Usuario Normal 1",
+  "rol": "user"
 }
 
+### Crear Usuario Normal 2
+POST http://localhost:3000/users
+Content-Type: application/json
 
-### Crear un equipo
+{
+  "name": "Usuario Normal 8", 
+  "rol": "user"
+}
 
+### ============================================
+### 2. CRUD COMPLETO - USUARIOS
+### ============================================
+
+### Listar todos los usuarios
+GET http://localhost:3000/users
+
+### Obtener usuario específico
+GET http://localhost:3000/users/5
+
+### Actualizar usuario
+PUT http://localhost:3000/users/2
+Content-Type: application/json
+
+{
+  "name": "Usuario Actualizado",
+  "rol": "user"
+}
+
+### Eliminar usuario
+DELETE http://localhost:3000/users/8
+
+### ============================================
+### 3. CRUD COMPLETO - EQUIPOS
+### ============================================
+
+### Crear equipo 1
 POST http://localhost:3000/teams
 Content-Type: application/json
 
 {
-
-  "name": "Equipo C"
-
+  "name": "Equipo de Desarrollo",
+  "propietarioId": 1
 }
 
+### Crear equipo 2
+POST http://localhost:3000/teams
+Content-Type: application/json
 
-### Crear una tarea (solo admin del equipo)
+{
+  "name": "Equipo de Diseño",
+  "propietarioId": 2
+}
 
+### Listar todos los equipos
+GET http://localhost:3000/teams
+
+### Obtener equipo específico
+GET http://localhost:3000/teams/1
+
+### Actualizar equipo
+PUT http://localhost:3000/teams/1
+Content-Type: application/json
+
+{
+  "name": "Equipo de Desarrollo - Actualizado",
+  "actorUserId": 1
+}
+
+### Eliminar equipo
+DELETE http://localhost:3000/teams/3
+Content-Type: application/json
+nfigurar base de datos
+{
+  "actorUserId": 2
+}
+
+### ============================================
+### 4. GESTIÓN DE MIEMBROS - EQUIPOS
+### ============================================
+
+### Agregar miembro como MIEMBRO
+POST http://localhost:3000/teams/1/miembros
+Content-Type: application/json
+
+{
+  "userId": 8,
+  "rol": "MIEMBRO",
+  "actorUserId": 1
+}
+
+### Agregar miembro como PROPIETARIO
+POST http://localhost:3000/teams/1/miembros
+Content-Type: application/json
+
+{
+  "userId": 6,
+  "rol": "PROPIETARIO",
+  "actorUserId": 1
+}
+
+### Listar miembros de equipo
+GET http://localhost:3000/teams/1/miembros
+
+### Cambiar rol de miembro
+PUT http://localhost:3000/teams/1/miembros/2
+Content-Type: application/json
+
+{
+  "nuevoRol": "PROPIETARIO",
+  "actorUserId": 1
+}
+
+### Remover miembro
+DELETE http://localhost:3000/teams/1/miembros/5
+Content-Type: application/json
+
+{
+  "actorUserId": 6
+}
+
+### ============================================
+### 5. CRUD COMPLETO - TAREAS
+### ============================================
+
+### Crear tarea 1
 POST http://localhost:3000/tasks
 Content-Type: application/json
 
 {
-
-  "title": "tarea de practica",
-
-  "description": "acordardate de borrarlo despues",
-
-  "userId": 1,
-
-  "teamId": 1
-
+  "title": "Implementar sistema de autenticación",
+  "description": "Crear login y registro de usuarios",
+  "teamId": 1,
+  "userId": 1
 }
 
-##-------------------------------------------------------------------------------------------------------
-##ASIGNACIONES Y MODIFICACIONES
+### Crear tarea 2
+POST http://localhost:3000/tasks
+Content-Type: application/json
 
-### Asignar usuario al equipo (userId: 2 al teamId: 1)
+{
+  "title": "Diseñar interfaz dashboard",
+  "description": "Crear mockups del panel principal",
+  "teamId": 1,
+  "userId": 1
+}
 
-POST http://localhost:3000/teams/1/users/2
+### Crear tarea 3
+POST http://localhost:3000/tasks
+Content-Type: application/json
 
+{
+  "title": "Configurar base de datos",
+  "description": "Configurar conexión y modelos de datos",
+  "teamId": 1,
+  "userId": 1
+}
 
+### Listar tareas (vista de usuario)
+GET http://localhost:3000/tasks/1
 
-### Asignar admin al equipo (userId: 1 al teamId: 1)
+### Actualizar tarea
+PUT http://localhost:3000/tasks/1
+Content-Type: application/json
 
-POST http://localhost:3000/teams/2/users/3
+{
+  "userId": 1,
+  "title": "Implementar sistema de autenticación JWT",
+  "description": "Crear login, registro y middleware JWT",
+  "priority": "alta"
+}
 
-
-### Marcar tarea como completa (userId: 2)
-
-PUT http://localhost:3000/tasks/5/complete
+### Eliminar tarea
+DELETE http://localhost:3000/tasks/3
 Content-Type: application/json
 
 {
   "userId": 1
 }
 
+### ============================================
+### 6. SISTEMA DE ESTADOS KANBAN
+### ============================================
 
-###modificar tarea 
-PUT http://localhost:3000/tasks/3
+### Cambiar estado: PENDIENTE → EN_CURSO
+PUT http://localhost:3000/tareas/1/estado
 Content-Type: application/json
 
 {
-  "userId": 2,
-  "title": "Nuevo título",
-  "description": "Descripción acthjghjgjhjda",
-  "priority": "alta"
+  "estado": "EN_CURSO",
+  "usuarioId": 1
 }
 
-
-### delete usuario 
-DELETE http://localhost:3000/users/4
-
-
-###delete tarea
-DELETE http://localhost:3000/tasks/3/2
-
-###delete equipo
-DELETE http://localhost:3000/teams/3
-
-### editar usuario con id 1
-PUT http://localhost:3000/users/1
+### Cambiar estado: EN_CURSO → FINALIZADA
+PUT http://localhost:3000/tareas/1/estado
 Content-Type: application/json
 
 {
-  "name": "Ramiro Editado",
-  "rol": "admin",
-  "teamId": 2
+  "estado": "FINALIZADA",
+  "usuarioId": 1
 }
 
+### Cambiar estado: PENDIENTE → CANCELADA
+PUT http://localhost:3000/tareas/2/estado
+Content-Type: application/json
 
-##-------------------------------------------------------------------------------------------------------
-##CONSULTAS
+{
+  "estado": "CANCELADA",
+  "usuarioId": 1
+}
 
+### Obtener historial de cambios
+GET http://localhost:3000/tareas/1/historial
 
-### Listar tareas de un usuario (userId: 5 no es admin)
+### Obtener tareas por estado - PENDIENTE
+GET http://localhost:3000/equipos/1/tareas/PENDIENTE
 
-GET http://localhost:3000/tasks/5
+### Obtener tareas por estado - EN_CURSO
+GET http://localhost:3000/equipos/1/tareas/EN_CURSO
 
+### Obtener tareas por estado - FINALIZADA
+GET http://localhost:3000/equipos/1/tareas/FINALIZADA
 
-### Listar tareas de un equipo (userId: 1 pertenece al teamId: 1)
-GET http://localhost:3000/tasks/1 
+### Obtener tareas por estado - CANCELADA
+GET http://localhost:3000/equipos/1/tareas/CANCELADA
 
-### Listar todas las tareas (userId: 1 es admin)
-GET http://localhost:3000/tasks
+### ============================================
+### 7. CRUD COMPLETO - ETIQUETAS
+### ============================================
 
+### Crear etiqueta Urgente
+POST http://localhost:3000/etiquetas
+Content-Type: application/json
 
+{
+  "nombre": "Urgente",
+  "color": "#FF0000"
+}
 
-### Listar usuarios
+### Crear etiqueta Bug
+POST http://localhost:3000/etiquetas
+Content-Type: application/json
 
-GET http://localhost:3000/users
+{
+  "nombre": "Bug",
+  "color": "#FF5733"
+}
 
+### Crear etiqueta Mejora
+POST http://localhost:3000/etiquetas
+Content-Type: application/json
 
+{
+  "nombre": "Mejora",
+  "color": "#33FF57"
+}
 
-### Listar equipos
+### Crear etiqueta Documentación
+POST http://localhost:3000/etiquetas
+Content-Type: application/json
 
+{
+  "nombre": "Documentación",
+  "color": "#3357FF"
+}
+
+### Crear etiqueta Frontend
+POST http://localhost:3000/etiquetas
+Content-Type: application/json
+
+{
+  "nombre": "Frontend",
+  "color": "#61DAFB"
+}
+
+### Crear etiqueta Backend
+POST http://localhost:3000/etiquetas
+Content-Type: application/json
+
+{
+  "nombre": "Backend",
+  "color": "#68A063"
+}
+
+### Listar todas las etiquetas
+GET http://localhost:3000/etiquetas
+
+### Obtener etiqueta específica
+GET http://localhost:3000/etiquetas/1
+
+### Actualizar etiqueta
+PUT http://localhost:3000/etiquetas/1
+Content-Type: application/json
+
+{
+  "nombre": "Crítico",
+  "color": "#FF2222"
+}
+
+### Eliminar etiqueta
+DELETE http://localhost:3000/etiquetas/6
+
+### ============================================
+### 8. GESTIÓN DE ETIQUETAS EN TAREAS
+### ============================================
+
+### Asignar etiquetas a tarea 1
+PUT http://localhost:3000/tareas/1/etiquetas
+Content-Type: application/json
+
+{
+  "etiquetasIds": [1, 2],
+  "usuarioId": 1
+}
+
+### Asignar etiquetas a tarea 2
+PUT http://localhost:3000/tareas/2/etiquetas
+Content-Type: application/json
+
+{
+  "etiquetasIds": [3, 5],
+  "usuarioId": 1
+}
+
+### Obtener etiquetas de tarea
+GET http://localhost:3000/tareas/1/etiquetas
+
+### Desasignar etiqueta de tarea
+DELETE http://localhost:3000/tareas/1/etiquetas/2
+Content-Type: application/json
+
+{
+  "usuarioId": 1
+}
+
+### Obtener tareas por etiqueta
+POST http://localhost:3000/etiquetas/1/tareas
+Content-Type: application/json
+
+{
+  "usuarioId": 1
+}
+
+### ============================================
+### 9. FLUJO COMPLETO DE PRUEBA - ESCENARIO REAL
+### ============================================
+
+### 📋 ESCENARIO: Proyecto "Sistema de Gestión de Tareas"
+
+### 👥 1. Configuración inicial del equipo
+POST http://localhost:3000/users
+Content-Type: application/json
+
+{
+  "name": "Líder de Proyecto",
+  "rol": "admin"
+}
+
+###
+POST http://localhost:3000/users
+Content-Type: application/json
+
+{
+  "name": "Desarrollador Backend",
+  "rol": "user"
+}
+
+###
+POST http://localhost:3000/users
+Content-Type: application/json
+
+{
+  "name": "Desarrollador Frontend", 
+  "rol": "user"
+}
+
+### 🏢 2. Crear equipo del proyecto
+POST http://localhost:3000/teams
+Content-Type: application/json
+
+{
+  "name": "Equipo Sistema de Gestión",
+  "propietarioId": 4
+}
+
+### 👥 3. Agregar miembros al equipo
+POST http://localhost:3000/teams/2/miembros
+Content-Type: application/json
+
+{
+  "userId": 5,
+  "rol": "PROPIETARIO",
+  "actorUserId": 4
+}
+
+###
+POST http://localhost:3000/teams/2/miembros
+Content-Type: application/json
+
+{
+  "userId": 6,
+  "rol": "MIEMBRO",
+  "actorUserId": 4
+}
+
+### 📝 4. Crear tareas del sprint
+POST http://localhost:3000/tasks
+Content-Type: application/json
+
+{
+  "title": "Diseñar base de datos",
+  "description": "Crear modelo ER y migraciones",
+  "teamId": 2,
+  "userId": 4
+}
+
+###
+POST http://localhost:3000/tasks
+Content-Type: application/json
+
+{
+  "title": "Implementar API REST",
+  "description": "Crear endpoints para usuarios y tareas",
+  "teamId": 2,
+  "userId": 4
+}
+
+###
+POST http://localhost:3000/tasks
+Content-Type: application/json
+
+{
+  "title": "Crear componentes React",
+  "description": "Desarrollar interfaz de usuario principal",
+  "teamId": 2,
+  "userId": 4
+}
+
+### 🏷️ 5. Configurar etiquetas del proyecto
+POST http://localhost:3000/etiquetas
+Content-Type: application/json
+
+{
+  "nombre": "Base de datos",
+  "color": "#336791"
+}
+
+###
+POST http://localhost:3000/etiquetas
+Content-Type: application/json
+
+{
+  "nombre": "API",
+  "color": "#68A063"
+}
+
+###
+POST http://localhost:3000/etiquetas
+Content-Type: application/json
+
+{
+  "nombre": "UI/UX",
+  "color": "#61DAFB"
+}
+
+### 🔄 6. Simular flujo de trabajo Kanban
+
+### Tarea 1: Diseño de BD → En progreso
+PUT http://localhost:3000/tareas/4/estado
+Content-Type: application/json
+
+{
+  "estado": "EN_CURSO",
+  "usuarioId": 4
+}
+
+### Asignar etiquetas a tarea 1
+PUT http://localhost:3000/tareas/4/etiquetas
+Content-Type: application/json
+
+{
+  "etiquetasIds": [7],
+  "usuarioId": 4
+}
+
+### Tarea 2: API → En progreso
+PUT http://localhost:3000/tareas/5/estado
+Content-Type: application/json
+
+{
+  "estado": "EN_CURSO",
+  "usuarioId": 5
+}
+
+### Asignar etiquetas a tarea 2
+PUT http://localhost:3000/tareas/5/etiquetas
+Content-Type: application/json
+
+{
+  "etiquetasIds": [8],
+  "usuarioId": 5
+}
+
+### Tarea 1: Diseño de BD → Finalizada
+PUT http://localhost:3000/tareas/4/estado
+Content-Type: application/json
+
+{
+  "estado": "FINALIZADA",
+  "usuarioId": 4
+}
+
+### Tarea 3: Componentes React → En progreso
+PUT http://localhost:3000/tareas/6/estado
+Content-Type: application/json
+
+{
+  "estado": "EN_CURSO",
+  "usuarioId": 6
+}
+
+### Asignar etiquetas a tarea 3
+PUT http://localhost:3000/tareas/6/etiquetas
+Content-Type: application/json
+
+{
+  "etiquetasIds": [9],
+  "usuarioId": 6
+}
+
+### 📊 7. Verificar estado del proyecto
+
+### Ver todos los equipos
 GET http://localhost:3000/teams
 
+### Ver miembros del equipo
+GET http://localhost:3000/teams/2/miembros
 
-### Listar un equipo por id
-GET http://localhost:3000/teams/1
+### Ver tareas del equipo con sus estados
+GET http://localhost:3000/tasks/4
 
+### Ver distribución de tareas por estado
+GET http://localhost:3000/equipos/2/tareas/PENDIENTE
 
+###
+GET http://localhost:3000/equipos/2/tareas/EN_CURSO
 
+###
+GET http://localhost:3000/equipos/2/tareas/FINALIZADA
 
+### Ver historial de una tarea
+GET http://localhost:3000/tareas/4/historial
 
+### Ver etiquetas utilizadas
+GET http://localhost:3000/etiquetas
 
+### Ver tareas por etiqueta específica
+POST http://localhost:3000/etiquetas/7/tareas
+Content-Type: application/json
+
+{
+  "usuarioId": 4
+}
+
+### ============================================
+### 10. VALIDACIONES Y PRUEBAS DE ERROR
+### ============================================
+
+### ❌ Intentar transición inválida (FINALIZADA → PENDIENTE)
+PUT http://localhost:3000/tareas/4/estado
+Content-Type: application/json
+
+{
+  "estado": "PENDIENTE",
+  "usuarioId": 4
+}
+
+### ❌ Intentar editar tarea finalizada
+PUT http://localhost:3000/tasks/4
+Content-Type: application/json
+
+{
+  "userId": 4,
+  "title": "Intentar modificar tarea finalizada",
+  "description": "Esto debería fallar"
+}
+
+### ❌ Usuario no miembro intenta cambiar estado
+PUT http://localhost:3000/tareas/5/estado
+Content-Type: application/json
+
+{
+  "estado": "FINALIZADA",
+  "usuarioId": 6
+}
+
+### ❌ Intentar crear etiqueta con nombre duplicado
+POST http://localhost:3000/etiquetas
+Content-Type: application/json
+
+{
+  "nombre": "Urgente",
+  "color": "#FF0000"
+}
+
+### ❌ Intentar crear equipo sin propietario válido
+POST http://localhost:3000/teams
+Content-Type: application/json
+
+{
+  "name": "Equipo Inválido",
+  "propietarioId": 999
+}

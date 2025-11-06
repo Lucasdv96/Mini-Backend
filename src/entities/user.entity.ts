@@ -1,6 +1,6 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany, ManyToOne } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from "typeorm";
 import { Task } from "./task.entity";
-import { Team } from "./team.entity";
+import { Membership } from "./membership.entity";
 
 @Entity()
 export class User {
@@ -13,10 +13,9 @@ export class User {
   @Column()
   rol!: "admin" | "user";
 
-  @ManyToOne(() => Team, (team) => team.users, { nullable: true })
-  team?: Team;
+  @OneToMany(() => Membership, (membership) => membership.user)
+  memberships!: Membership[];
 
   @OneToMany(() => Task, (task) => task.user)
   tasks!: Task[];
 }
-
