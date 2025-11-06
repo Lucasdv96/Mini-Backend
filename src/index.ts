@@ -6,6 +6,7 @@ import teamRoutes from "./routes/team.routes";
 import estadoRoutes from "./routes/estado.routes";
 import etiquetaRoutes from "./routes/etiqueta.routes";
 import tareaEtiquetaRoutes from "./routes/tarea-etiqueta.routes";
+import authRoutes from "./routes/auth.routes";
 
 
 const app = express();
@@ -25,6 +26,7 @@ AppdataSource.initialize()
     app.use("/", estadoRoutes);
     app.use("/etiquetas", etiquetaRoutes);
     app.use("/", tareaEtiquetaRoutes);
+    app.use("/auth", authRoutes);
     
 
     app.listen(3000, () => {

@@ -4,8 +4,8 @@ import { User } from "../entities/user.entity";
 export class UserRepository {
   private repo = AppdataSource.getRepository(User);
 
-  async create(name: string, rol: "admin" | "user"): Promise<User> {
-    const user = this.repo.create({ name, rol });
+  async create(name: string, email: string, password: string, rol: "admin" | "user"): Promise<User> {
+    const user = this.repo.create({ name, email, password, rol });
     return await this.repo.save(user);
   }
 
@@ -13,16 +13,23 @@ export class UserRepository {
     return await this.repo.find();
   }
 
-  async findById(id: number) {
-    return await this.repo.findOne({ where: { id } });
+  async findById(id: number, includePassword: boolean = false) {
+    if (includePassword) {
+      return await this.repo.findOne({ where: { id } });
+    }
+    return await this.repo.findOne({ 
+      where: { id },
+      select: ['id', 'name', 'email', 'rol']
+    });
+  }
+
+  async findByEmail(email: string) {
+    return await this.repo.findOne({ where: { email } });
   }
 
   async updateUser(id: number, data: Partial<User>) {
-    const user = await this.findById(id);
-    if (!user) throw new Error("El usuario no existe");
-
-    Object.assign(user, data);
-    return await this.repo.save(user);
+    await this.repo.update(id, data);
+    return await this.findById(id);
   }
 
   async deleteUser(id: number) {

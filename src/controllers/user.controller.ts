@@ -6,31 +6,40 @@ const userService = new UserService();
 export class UserController {
   create = async (req: Request, res: Response) => {
     try {
-      const { name, rol } = req.body; // ← Solo name y rol, sin teamId
-      const user = await userService.createUser(name, rol);
+      const { name, email, password, rol = "user" } = req.body; // Rol por defecto "user"
+      
+      if (!name || !email || !password) {
+        return res.status(400).json({ message: "Nombre, email y contraseña son requeridos" });
+      }
+
+      const user = await userService.createUser(name, email, password, rol);
       res.status(201).json(user);
     } catch (err: any) {
       res.status(400).json({ message: err.message });
     }
   };
 
-  getAll = async (_req: Request, res: Response) => {
-    const users = await userService.getAllUsers();
-    res.json(users);
+  getAll = async (req: Request, res: Response) => {
+    try {
+      const users = await userService.getAllUsers();
+      res.json(users);
+    } catch (err: any) {
+      res.status(500).json({ message: err.message });
+    }
   };
-
-  getUserById = async (_req : Request, res : Response) =>{
-    const userid = Number(_req.params.id)
-    const user = await userService.findUserById(userid)
-    res.json(user)
-  }
 
   update = async (req: Request, res: Response) => {
     try {
       const id = Number(req.params.id);
-      const { name, rol } = req.body; // ← Sin teamId aquí también
+      const { name, email, rol } = req.body;
 
-      const updated = await userService.updateUser(id, { name, rol });
+      // Verificar que el usuario solo pueda actualizar su propio perfil
+      const currentUserId = (req as any).user?.id;
+      if (currentUserId !== id) {
+        return res.status(403).json({ message: "Solo puedes actualizar tu propio perfil" });
+      }
+
+      const updated = await userService.updateUser(id, { name, email, rol });
       res.json(updated);
     } catch (err: any) {
       res.status(400).json({ message: err.message });
@@ -40,8 +49,38 @@ export class UserController {
   delete = async (req: Request, res: Response) => {
     try {
       const id = Number(req.params.id);
+      
+      // Verificar que el usuario solo pueda eliminar su propia cuenta
+      const currentUserId = (req as any).user?.id;
+      if (currentUserId !== id) {
+        return res.status(403).json({ message: "Solo puedes eliminar tu propia cuenta" });
+      }
+
       await userService.deleteUser(id);
       res.status(204).send();
+    } catch (err: any) {
+      res.status(400).json({ message: err.message });
+    }
+  };
+
+  changePassword = async (req: Request, res: Response) => {
+    try {
+      const userId = Number(req.params.id);
+      
+      // Verificar que el usuario solo pueda cambiar su propia contraseña
+      const currentUserId = (req as any).user?.id;
+      if (currentUserId !== userId) {
+        return res.status(403).json({ message: "Solo puedes cambiar tu propia contraseña" });
+      }
+
+      const { currentPassword, newPassword } = req.body;
+
+      if (!currentPassword || !newPassword) {
+        return res.status(400).json({ message: "Contraseña actual y nueva contraseña son requeridas" });
+      }
+
+      await userService.changePassword(userId, currentPassword, newPassword);
+      res.json({ message: "Contraseña actualizada exitosamente" });
     } catch (err: any) {
       res.status(400).json({ message: err.message });
     }
