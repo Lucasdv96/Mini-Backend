@@ -7,9 +7,14 @@ import estadoRoutes from "./routes/estado.routes";
 import etiquetaRoutes from "./routes/etiqueta.routes";
 import tareaEtiquetaRoutes from "./routes/tarea-etiqueta.routes";
 import authRoutes from "./routes/auth.routes";
+import cors from "cors";
 
 
 const app = express();
+app.use(cors({
+  origin: 'http://localhost:3001', // Puerto de frontend React
+  credentials: true
+}));
 app.use(express.json());
 
 AppdataSource.initialize()
