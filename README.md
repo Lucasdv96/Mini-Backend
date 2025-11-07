@@ -17,6 +17,9 @@ npm install bcryptjs jsonwebtoken
 npm install @types/bcryptjs @types/jsonwebtoken -D
 
 
+npm install cors
+npm install @types/cors --save-dev
+
 PROBAR :
 (bash)
 npm run dev
