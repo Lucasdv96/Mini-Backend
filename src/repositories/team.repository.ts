@@ -17,8 +17,11 @@ export class TeamRepository {
     });
   }
 
-  async getAll() {
+  async getAll(filters?:{userId:number}) {
+
+    const w = filters ? {memberships:{user:{id: filters.userId}}}   : {}
     return await this.repo.find({ 
+      where: w,
       relations: ["propietario", "memberships", "tasks"]  // ← Relaciones correctas
     });
   }

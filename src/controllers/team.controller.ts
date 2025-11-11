@@ -41,13 +41,17 @@ export class TeamController {
     }
   };
 
-  getAll = async (_req: Request, res: Response) => {
-    try {
-      const teams = await teamService.getAllTeams();
-      return res.json(teams);
-    } catch (err: any) {
-      return res.status(500).json({ message: "Error al obtener equipos" });
-    }
+  getAll = async (req: Request, res: Response) => {
+  try {
+    const filters = req.query["userid"] ? {userId: parseInt(req.query["userid"] as string) } : undefined;
+    console.log('Filtros recibidos:', filters); // DEBUG
+    const teams = await teamService.getAllTeams(filters);
+    console.log('Equipos encontrados:', teams.length); // DEBUG
+    return res.json(teams);
+  } catch (err: any) {
+    console.error('Error en getAll teams:', err);
+    return res.status(500).json({ message: "Error al obtener equipos" });
+  }
   };
 
   update = async (req: Request, res: Response) => {

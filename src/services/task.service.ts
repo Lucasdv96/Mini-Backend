@@ -11,13 +11,19 @@ export class TaskService {
   private membershipService = new MembershipService();
   private teamRepo = AppdataSource.getRepository(Team);
 
-  async createTask(title: string, description: string, teamId: number, userId: number): Promise<Task> {
+  async createTask(
+    title: string, 
+    description: string, 
+    teamId: number, 
+    userId: number, 
+    priority: string = 'media',
+    dueDate?: string
+  ): Promise<Task> {
     if (!title || !title.trim()) throw new Error("El titulo no puede estar vacío");
 
     const user = await this.userService.findUserById(userId);
     if (!user) throw new Error("El usuario no existe");
     
-    // Verificar que el usuario es admin del equipo específico
     const membresia = await this.membershipService.obtenerMembresia(teamId, userId);
     if (!membresia || membresia.rol !== "PROPIETARIO") {
       throw new Error("Solo los propietarios del equipo pueden crear tareas");
@@ -26,7 +32,19 @@ export class TaskService {
     const team = await this.teamRepo.findOneBy({ id: teamId });
     if (!team) throw new Error("El equipo no existe");
 
-    return await this.taskRepo.create(title, description, teamId, userId);
+    console.log('🔄 Service procesando:', { dueDate });
+
+    // SOLUCIÓN: Asegurar que devolvemos una Task, no un array
+    const task = await this.taskRepo.create(title, description, teamId, userId, priority, dueDate);
+    
+    // Verificar que task no sea un array
+    if (Array.isArray(task)) {
+      throw new Error("Error inesperado: se creó un array de tareas en lugar de una tarea individual");
+    }
+    
+    console.log('✅ Tarea creada en service:', task);
+
+    return task;
   }
 
   async getAllTasks(userId: number): Promise<Task[]> {
@@ -105,4 +123,9 @@ export class TaskService {
 
     return await this.taskRepo.updateTask(id, data);
   }
+
+  async getTaskById(taskId: number): Promise<Task | null> {
+  return await this.taskRepo.findOneById(taskId);
+}
+
 }

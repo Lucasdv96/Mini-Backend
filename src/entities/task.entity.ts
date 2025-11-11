@@ -3,6 +3,7 @@ import { User } from "./user.entity";
 import { Team } from "./team.entity";
 import { HistorialEstado } from "./historial-estado.entity";
 import { Etiqueta } from "./etiqueta.entity";
+import { Comment } from "./comment.entity";
 
 export enum EstadoTarea {
   PENDIENTE = "PENDIENTE",
@@ -43,6 +44,9 @@ export class Task {
 
   @ManyToOne(() => Team, (team) => team.tasks, { eager: true })
   team!: Team;
+
+  @OneToMany(() => Comment, (comment) => comment.tarea)
+  comments!: Comment[];
 
   @CreateDateColumn()
   fechaCreacion!: Date;

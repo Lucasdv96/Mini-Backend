@@ -40,8 +40,8 @@ export class TeamService {
     return await this.teamRepo.findById(teamId);
   }
 
-  async getAllTeams() {
-    return await this.teamRepo.getAll();
+  async getAllTeams(filters?: {userId:number}) {
+    return await this.teamRepo.getAll(filters);
   }
 
   async updateTeam(teamId: number, name: string, actorUserId: number): Promise<Team> {

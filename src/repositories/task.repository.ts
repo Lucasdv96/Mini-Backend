@@ -7,7 +7,14 @@ import { In } from "typeorm";
 export class TaskRepository {
   private repo = AppdataSource.getRepository(Task);
 
-  async create(title: string, description: string, teamId: number, userId: number) {
+  async create(
+    title: string, 
+    description: string, 
+    teamId: number, 
+    userId: number, 
+    priority: string,
+    dueDate?: string
+  ): Promise<Task> {
     const teamRepo = AppdataSource.getRepository(Team);
     const userRepo = AppdataSource.getRepository(User);
     
@@ -17,14 +24,30 @@ export class TaskRepository {
     if (!team) throw new Error("El equipo no existe");
     if (!user) throw new Error("El usuario no existe");
 
-    const task = this.repo.create({ 
-      title, 
-      description, 
-      estado: EstadoTarea.PENDIENTE, // Estado inicial
-      team,
-      user 
-    });
-    return await this.repo.save(task);
+    // SOLUCIÓN: Crear la instancia manualmente en lugar de usar repo.create()
+    const task = new Task();
+    task.title = title;
+    task.description = description;
+    task.estado = EstadoTarea.PENDIENTE;
+    task.priority = priority;
+    
+    // Manejar dueDate de forma segura
+    if (dueDate) {
+      console.log('📅 Convirtiendo dueDate:', dueDate, 'a Date:', new Date(dueDate));
+      task.dueDate = new Date(dueDate);
+    }
+    else {
+    console.log('❌ dueDate es undefined o vacío'); // AGREGAR ESTO
+    }
+    
+    task.team = team;
+    task.user = user;
+
+    const savedTask = await this.repo.save(task);
+  console.log('💾 Tarea guardada en BD:', savedTask); // AGREGAR ESTO
+  
+  return savedTask;
+
   }
 
   async getAll() {

@@ -65,36 +65,45 @@ export class MembershipService {
   }
 
   async removerMiembro(teamId: number, userId: number, actorUserId: number) {
-    const actorMembership = await this.membershipRepo.findOne({
-      where: { 
-        user: { id: actorUserId }, 
-        team: { id: teamId },
-        rol: RolMembresia.PROPIETARIO
-      }
-    });
+    // MODIFICAR: Permitir que usuarios se eliminen a sí mismos
+    const esElMismoUsuario = userId === actorUserId;
+    
+    if (!esElMismoUsuario) {
+      // Si no es el mismo usuario, verificar que el actor es propietario
+      const actorMembership = await this.membershipRepo.findOne({
+        where: { 
+          user: { id: actorUserId }, 
+          team: { id: teamId },
+          rol: RolMembresia.PROPIETARIO
+        }
+      });
 
-    if (!actorMembership) {
-      throw new Error("Solo los propietarios pueden remover miembros");
+      if (!actorMembership) {
+        throw new Error("Solo los propietarios pueden remover a otros miembros");
+      }
     }
 
-    // Verificar que no es el último propietario
-    const propietarios = await this.membershipRepo.find({
-      where: { 
-        team: { id: teamId },
-        rol: RolMembresia.PROPIETARIO
-      }
-    });
-
-    if (propietarios.length === 1 && propietarios[0]?.user?.id === userId) {
-      throw new Error("No se puede remover al último propietario del equipo");
-    }
-
+    // El resto del método se mantiene igual...
     const membership = await this.membershipRepo.findOne({
       where: { user: { id: userId }, team: { id: teamId } }
     });
 
     if (!membership) {
       throw new Error("El usuario no es miembro de este equipo");
+    }
+
+    // Verificar que no es el último propietario
+    if (membership.rol === RolMembresia.PROPIETARIO) {
+      const propietarios = await this.membershipRepo.find({
+        where: { 
+          team: { id: teamId },
+          rol: RolMembresia.PROPIETARIO
+        }
+      });
+
+      if (propietarios.length === 1 && propietarios[0]?.user?.id === userId) {
+        throw new Error("No se puede remover al último propietario del equipo");
+      }
     }
 
     await this.membershipRepo.remove(membership);

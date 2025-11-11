@@ -6,6 +6,8 @@ import { Team } from "../entities/team.entity";
 import { Membership } from "../entities/membership.entity"; 
 import { HistorialEstado } from "../entities/historial-estado.entity";
 import { Etiqueta } from "../entities/etiqueta.entity";
+import { Comment } from "../entities/comment.entity";
+
 
 
 export const AppdataSource = new DataSource({
@@ -13,7 +15,7 @@ export const AppdataSource = new DataSource({
     database: "db.sqlite",
     synchronize: false,
     logging: true,
-    entities: [Task,User,Team,Membership,HistorialEstado,Etiqueta],
+    entities: [Task,User,Team,Membership,HistorialEstado,Etiqueta,Comment],
     migrations: ["src/migrations/*.ts"],
 });
 
