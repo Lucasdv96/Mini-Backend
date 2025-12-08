@@ -501,7 +501,7 @@ Content-Type: application/json
 }
 
 ### Asignar etiquetas a tarea 1
-PUT http://localhost:3000/tareas/4/etiquetas
+PUT http://localhost:3000/tareas/1/etiquetas
 Content-Type: application/json
 
 {
@@ -654,8 +654,8 @@ POST http://localhost:3000/users
 Content-Type: application/json
 
 {
-  "name": "ramiro",
-  "email": "admin@example.com",
+  "name": "usuario normal 1",
+  "email": "user@example.com",
   "password": "admin123"
 }
 
@@ -788,7 +788,7 @@ Content-Type: application/json
 }
 
 ### PASO 2: Login para obtener token
-POST http://localhost:3000/auth/login
+POST http://localhost:3000/auth/loginadmin123
 Content-Type: application/json
 
 {
@@ -932,5 +932,43 @@ Content-Type: application/json
 
 {
   "estado": "ESTADO_INEXISTENTE",
+  "usuarioId": 1
+}
+
+
+### comentarios #####
+
+
+### 1. Crear comentario en tarea existente
+POST http://localhost:3000/tareas/1/comentarios
+Content-Type: application/json
+
+{
+  "contenido": "Este es mi primer comentario en esta tarea",
+  "usuarioId": 1
+}
+
+### 2. Obtener comentarios de una tarea
+GET http://localhost:3000/tareas/1/comentarios
+Content-Type: application/json
+
+{
+  "usuarioId": 1
+}
+
+### 3. Actualizar un comentario
+PUT http://localhost:3000/comentarios/1
+Content-Type: application/json
+
+{
+  "contenido": "Contenido actualizado del comentario",
+  "usuarioId": 1
+}
+
+### 4. Eliminar un comentario
+DELETE http://localhost:3000/comentarios/1
+Content-Type: application/json
+
+{
   "usuarioId": 1
 }

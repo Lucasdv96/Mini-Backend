@@ -23,6 +23,7 @@ export class EstadoController {
       const tareaActualizada = await estadoService.cambiarEstado(tareaId, estado, usuarioId);
       return res.json(tareaActualizada);
     } catch (err: any) {
+      console.log(err);
       return res.status(400).json({ message: err.message });
     }
   };

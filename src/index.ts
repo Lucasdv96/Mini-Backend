@@ -8,13 +8,11 @@ import etiquetaRoutes from "./routes/etiqueta.routes";
 import tareaEtiquetaRoutes from "./routes/tarea-etiqueta.routes";
 import authRoutes from "./routes/auth.routes";
 import cors from "cors";
+import commentRoutes from "./routes/comment.routes";
 
 
 const app = express();
-app.use(cors({
-  origin: 'http://localhost:3001', // Puerto de frontend React
-  credentials: true
-}));
+app.use(cors());
 app.use(express.json());
 
 AppdataSource.initialize()
@@ -32,6 +30,7 @@ AppdataSource.initialize()
     app.use("/etiquetas", etiquetaRoutes);
     app.use("/", tareaEtiquetaRoutes);
     app.use("/auth", authRoutes);
+    app.use("/", commentRoutes);
     
 
     app.listen(3000, () => {
