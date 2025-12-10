@@ -4,12 +4,14 @@ import { UserService } from "./user.service";
 import { MembershipService } from "./membership.service";
 import { AppdataSource } from "../config/data-source";
 import { Team } from "../entities/team.entity";
+import { TaskTemplate } from "../entities/task-template.entity";
 
 export class TaskService {
   private taskRepo = new TaskRepository();
   private userService = new UserService();
   private membershipService = new MembershipService();
   private teamRepo = AppdataSource.getRepository(Team);
+  private templateRepo = AppdataSource.getRepository(TaskTemplate);
 
   async createTask(
     title: string, 
@@ -17,7 +19,9 @@ export class TaskService {
     teamId: number, 
     userId: number, 
     priority: string = 'media',
-    dueDate?: string
+    dueDate?: string,
+    originTemplateId?: number  // NUEVO parámetro
+
   ): Promise<Task> {
     if (!title || !title.trim()) throw new Error("El titulo no puede estar vacío");
 
@@ -32,12 +36,31 @@ export class TaskService {
     const team = await this.teamRepo.findOneBy({ id: teamId });
     if (!team) throw new Error("El equipo no existe");
 
-    console.log('🔄 Service procesando:', { dueDate });
+    // NUEVO: Validar template si se proporciona
+    let originTemplate = undefined;
+    if (originTemplateId) {
+      originTemplate = await this.templateRepo.findOneBy({ id: originTemplateId });
+      if (!originTemplate) {
+        throw new Error("El template especificado no existe");
+      }
+      // Verificar que el usuario es el creador del template
+      if (originTemplate.creator.id !== userId) {
+        throw new Error("No tienes permisos para usar este template");
+      }
+    }
 
-    // SOLUCIÓN: Asegurar que devolvemos una Task, no un array
-    const task = await this.taskRepo.create(title, description, teamId, userId, priority, dueDate);
+    console.log('🔄 Service procesando:', { dueDate, originTemplateId });
+
+    const task = await this.taskRepo.create(
+      title, 
+      description, 
+      teamId, 
+      userId, 
+      priority, 
+      dueDate,
+      originTemplateId  // NUEVO: Pasar al repositorio
+    );
     
-    // Verificar que task no sea un array
     if (Array.isArray(task)) {
       throw new Error("Error inesperado: se creó un array de tareas en lugar de una tarea individual");
     }
@@ -51,21 +74,16 @@ export class TaskService {
     const user = await this.userService.findUserById(userId);
     if (!user) throw new Error("El usuario no existe");
 
-    // Si es ADMIN, ver todas las tareas
     if (user.rol === "admin") {
       return await this.taskRepo.getAll();
     }
 
-    // Para usuarios normales, obtener los equipos a los que pertenece
     const membresias = await this.membershipService.obtenerMembresiasPorUsuario(userId);
     if (membresias.length === 0) {
       throw new Error("El usuario no pertenece a ningún equipo");
     }
 
-    // Obtener IDs de todos los equipos del usuario
     const teamIds = membresias.map(m => m.team.id);
-    
-    // Obtener tareas de todos sus equipos
     return await this.taskRepo.getTasksByTeamIds(teamIds);
   }
 
@@ -77,7 +95,6 @@ export class TaskService {
       return await this.taskRepo.getTasksByEstado(estado);
     }
 
-    // Para usuarios normales, filtrar por sus equipos
     const membresias = await this.membershipService.obtenerMembresiasPorUsuario(userId);
     if (membresias.length === 0) {
       throw new Error("El usuario no pertenece a ningún equipo");
@@ -94,7 +111,6 @@ export class TaskService {
     const actor = await this.userService.findUserById(actorUserId);
     if (!actor) throw new Error("El usuario no existe");
 
-    // Verificar que el actor es propietario del equipo de la tarea
     const membresia = await this.membershipService.obtenerMembresia(task.team.id, actorUserId);
     if (!membresia || membresia.rol !== "PROPIETARIO") {
       throw new Error("Solo propietarios del equipo pueden borrar tareas");
@@ -110,13 +126,11 @@ export class TaskService {
     const actor = await this.userService.findUserById(actorUserId);
     if (!actor) throw new Error("El usuario no existe");
     
-    // Verificar que el actor es propietario del equipo de la tarea
     const membresia = await this.membershipService.obtenerMembresia(task.team.id, actorUserId);
     if (!membresia || membresia.rol !== "PROPIETARIO") {
       throw new Error("Solo propietarios del equipo pueden modificar tareas");
     }
 
-    // No permitir edición si la tarea está finalizada o cancelada
     if (task.estado === EstadoTarea.FINALIZADA || task.estado === EstadoTarea.CANCELADA) {
       throw new Error("No se puede modificar una tarea finalizada o cancelada");
     }
@@ -125,7 +139,6 @@ export class TaskService {
   }
 
   async getTaskById(taskId: number): Promise<Task | null> {
-  return await this.taskRepo.findOneById(taskId);
-}
-
+    return await this.taskRepo.findOneById(taskId);
+  }
 }

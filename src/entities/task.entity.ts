@@ -1,9 +1,10 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn , OneToMany , ManyToMany , JoinTable} from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn, OneToMany, ManyToMany, JoinTable } from "typeorm";
 import { User } from "./user.entity";
 import { Team } from "./team.entity";
 import { HistorialEstado } from "./historial-estado.entity";
 import { Etiqueta } from "./etiqueta.entity";
 import { Comment } from "./comment.entity";
+import { TaskTemplate } from "./task-template.entity"; // NUEVO
 
 export enum EstadoTarea {
   PENDIENTE = "PENDIENTE",
@@ -39,6 +40,10 @@ export class Task {
   @Column({ type: "datetime", nullable: true })
   dueDate?: Date;
 
+  // NUEVO: Relación opcional con template
+  @ManyToOne(() => TaskTemplate, { nullable: true })
+  originTemplate?: TaskTemplate;
+
   @ManyToOne(() => User, (user) => user.tasks, { eager: true })
   user!: User;
 
@@ -56,15 +61,15 @@ export class Task {
 
   @ManyToMany(() => Etiqueta, (etiqueta) => etiqueta.tareas)
   @JoinTable({
-  name: "tarea_etiquetas",
-  joinColumn: {
-    name: "tarea_id",
-    referencedColumnName: "id",
-  },
-  inverseJoinColumn: {
-    name: "etiqueta_id",
-    referencedColumnName: "id",
-  },
-})
-etiquetas!: Etiqueta[];
+    name: "tarea_etiquetas",
+    joinColumn: {
+      name: "tarea_id",
+      referencedColumnName: "id",
+    },
+    inverseJoinColumn: {
+      name: "etiqueta_id",
+      referencedColumnName: "id",
+    },
+  })
+  etiquetas!: Etiqueta[];
 }

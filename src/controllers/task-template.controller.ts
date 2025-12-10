@@ -1,3 +1,4 @@
+
 import { Request, Response } from "express";
 import { TaskService } from "../services/task.service";
 import { UserService } from "../services/user.service";
@@ -5,9 +6,9 @@ import { UserService } from "../services/user.service";
 const taskService = new TaskService();
 const userService = new UserService();
 
-export class TaskController {
+export class TaskTemplateController {
  
-  create = async (req: Request, res: Response) => {
+  createTemplate = async (req: Request, res: Response) => {
     try {
       // MODIFICADO: Incluir originTemplateId
       const { 
@@ -38,7 +39,7 @@ export class TaskController {
         Number(userId), 
         priority, 
         dueDate,
-        originTemplateId ? Number(originTemplateId) : undefined  // NUEVO
+        
       );
       
       console.log('✅ Tarea creada:', task);
@@ -84,15 +85,6 @@ export class TaskController {
       });
 
       return res.json(updated);
-    } catch (err: any) {
-      return res.status(400).json({ message: err.message });
-    }
-  };
-  getById = async (req: Request, res: Response) => {
-    try {
-      const id = Number(req.params.id);
-      const task = await taskService.getTaskById(id);
-      return res.json(task);
     } catch (err: any) {
       return res.status(400).json({ message: err.message });
     }
