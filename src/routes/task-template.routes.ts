@@ -20,6 +20,6 @@ router.get("/:id/preview", controller.getTemplatePreview);
 router.put("/:id", controller.update);
 
 // Eliminar template
-router.delete("/:id", controller.delete);
+router.delete("/:id", controller.deleteTemplate);
 
 export default router;
