@@ -13,7 +13,8 @@ export class TaskRepository {
     teamId: number, 
     userId: number, 
     priority: string,
-    dueDate?: string
+    dueDate?: string,
+    originTemplateId?: number  // NUEVO parámetro
   ): Promise<Task> {
     const teamRepo = AppdataSource.getRepository(Team);
     const userRepo = AppdataSource.getRepository(User);

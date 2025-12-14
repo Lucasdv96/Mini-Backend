@@ -8,27 +8,45 @@ const userService = new UserService();
 export class TaskController {
  
   create = async (req: Request, res: Response) => {
-  try {
-    // MODIFICAR: Incluir dueDate en el destructuring
-    const { title, description, teamId, userId, priority = 'media', dueDate } = req.body;
-    
-    console.log('📥 Backend recibió:', { 
-      title, 
-      description, 
-      teamId, 
-      userId, 
-      priority, 
-      dueDate  // AGREGAR ESTO
-    });
+    try {
+      // MODIFICADO: Incluir originTemplateId
+      const { 
+        title, 
+        description, 
+        teamId, 
+        userId, 
+        priority = 'media', 
+        dueDate,
+        originTemplateId  // NUEVO campo
+      } = req.body;
+      
+      console.log('📥 Backend recibió:', { 
+        title, 
+        description, 
+        teamId, 
+        userId, 
+        priority, 
+        dueDate,
+        originTemplateId  // NUEVO
+      });
 
-    // MODIFICAR: Pasar dueDate al servicio
-    const task = await taskService.createTask(title, description, teamId, Number(userId), priority, dueDate);
-    console.log('✅ Tarea creada:', task);
-    res.status(201).json(task);
-  } catch (err: any) {
-    res.status(400).json({ message: err.message });
-  }
-};
+      // MODIFICADO: Pasar originTemplateId al servicio
+      const task = await taskService.createTask(
+        title, 
+        description, 
+        teamId, 
+        Number(userId), 
+        priority, 
+        dueDate,
+        originTemplateId ? Number(originTemplateId) : undefined  // NUEVO
+      );
+      
+      console.log('✅ Tarea creada:', task);
+      res.status(201).json(task);
+    } catch (err: any) {
+      res.status(400).json({ message: err.message });
+    }
+  };
 
   getAll = async (req: Request, res: Response) => {
     try {
@@ -41,19 +59,7 @@ export class TaskController {
     } catch (err: any) {
       return res.status(400).json({ message: err.message });
     }
-      
   };
-
-  // markCompleted = async (req: Request, res: Response) => {
-  //   try {
-  //     const id = Number(req.params.id);
-  //     const { userId } = req.body;
-  //     const task = await taskService.markTaskComplete(id, Number(userId));
-  //     return res.json(task);
-  //   } catch (err: any) {
-  //     return res.status(400).json({ message: err.message });
-  //   }
-  // };
 
   delete = async (req: Request, res: Response) => {
     try {
@@ -66,23 +72,29 @@ export class TaskController {
     }
   };
 
+  update = async (req: Request, res: Response) => {
+    try {
+      const id = Number(req.params.id);
+      const { userId, title, description, priority } = req.body;
 
-  
-update = async (req: Request, res: Response) => {
-  try {
-    const id = Number(req.params.id);
-    const { userId, title, description, priority } = req.body;
+      const updated = await taskService.updateTask(id, Number(userId), {
+        title,
+        description,
+        priority,
+      });
 
-    const updated = await taskService.updateTask(id, Number(userId), {
-      title,
-      description,
-      priority,
-    });
-
-    return res.json(updated);
-  } catch (err: any) {
-    return res.status(400).json({ message: err.message });
-  }
-};
-
+      return res.json(updated);
+    } catch (err: any) {
+      return res.status(400).json({ message: err.message });
+    }
+  };
+  getById = async (req: Request, res: Response) => {
+    try {
+      const id = Number(req.params.id);
+      const task = await taskService.getTaskById(id);
+      return res.json(task);
+    } catch (err: any) {
+      return res.status(400).json({ message: err.message });
+    }
+  };
 }

@@ -1,0 +1,485 @@
+### ============================================
+### PRUEBAS SISTEMA DE TASK TEMPLATES
+### ============================================
+
+### 📋 CONFIGURACIÓN INICIAL
+### Primero necesitamos usuarios y equipos para probar
+
+### 1. Crear usuario para pruebas
+POST http://localhost:3000/users
+Content-Type: application/json
+
+{
+  "name": "Usuario Test Templates",
+  "email": "templates@test.com",
+  "password": "test123",
+  "rol": "user"
+}
+
+### 2. Login para obtener token (si es necesario)
+POST http://localhost:3000/auth/login
+Content-Type: application/json
+
+{
+  "email": "templates@test.com",
+  "password": "test123"
+}
+
+### 3. Crear equipo para las templates
+POST http://localhost:3000/teams
+Content-Type: application/json
+
+{
+  "name": "Equipo Desarrollo Template Test",
+  "propietarioId": 1
+}
+
+### 4. Crear etiquetas para usar en templates
+POST http://localhost:3000/etiquetas
+Content-Type: application/json
+
+{
+  "nombre": "Backend",
+  "color": "#336791"
+}
+
+###
+POST http://localhost:3000/etiquetas
+Content-Type: application/json
+
+{
+  "nombre": "Frontend",
+  "color": "#61DAFB"
+}
+
+###
+POST http://localhost:3000/etiquetas
+Content-Type: application/json
+
+{
+  "nombre": "Bug",
+  "color": "#FF0000"
+}
+
+### ============================================
+### 🎨 CREAR TEMPLATES
+### ============================================
+
+### 5. Crear template básico (sin team, sin tags)
+POST http://localhost:3000/templates
+Content-Type: application/json
+
+{
+  "name": "Template Básico",
+  "description": "Una template simple sin equipo ni tags",
+  "defaultPriority": "MEDIUM",
+  "userId": 1,
+  "tagIds": []
+}
+
+### 6. Crear template con team
+POST http://localhost:3000/templates
+Content-Type: application/json
+
+{
+  "name": "Template Backend",
+  "description": "Template para tareas de backend",
+  "defaultPriority": "HIGH",
+  "userId": 1,
+  "teamId": 1,
+  "tagIds": [1]
+}
+
+### 7. Crear template con múltiples tags
+POST http://localhost:3000/templates
+Content-Type: application/json
+
+{
+  "name": "Template Frontend",
+  "description": "Template para desarrollo frontend con React",
+  "defaultPriority": "MEDIUM",
+  "userId": 1,
+  "teamId": 1,
+  "tagIds": [2]
+}
+
+### 8. Crear template para bugs
+POST http://localhost:3000/templates
+Content-Type: application/json
+
+{
+  "name": "Bug Report",
+  "description": "Template para reportar y trackear bugs",
+  "defaultPriority": "HIGH",
+  "userId": 1,
+  "teamId": 1,
+  "tagIds": [3]
+}
+
+### 9. Crear template completo (con todo)
+POST http://localhost:3000/templates
+Content-Type: application/json
+
+{
+  "name": "Feature Completa",
+  "description": "Template para features que requieren backend y frontend",
+  "defaultPriority": "MEDIUM",
+  "userId": 1,
+  "teamId": 1,
+  "tagIds": [1, 2]
+}
+
+### ============================================
+### 📖 LISTAR Y CONSULTAR TEMPLATES
+### ============================================
+
+### 10. Listar todos los templates del usuario
+GET http://localhost:3000/templates?userId=1
+
+### 11. Listar con paginación
+GET http://localhost:3000/templates?userId=1&page=1&limit=3
+
+### 12. Filtrar por team
+GET http://localhost:3000/templates?userId=1&teamId=1
+
+### 13. Buscar por nombre/descripción
+GET http://localhost:3000/templates?userId=1&search=backend
+
+### 14. Buscar "bug"
+GET http://localhost:3000/templates?userId=1&search=bug
+
+### 15. Combinar filtros (team + búsqueda)
+GET http://localhost:3000/templates?userId=1&teamId=1&search=template
+
+### 16. Obtener preview de template para prellenar formulario
+GET http://localhost:3000/templates/1/preview?userId=1
+
+### 17. Preview de template con tags
+GET http://localhost:3000/templates/2/preview?userId=1
+
+### 18. Preview de template completo
+GET http://localhost:3000/templates/5/preview?userId=1
+
+### ============================================
+### ✏️ ACTUALIZAR TEMPLATES
+### ============================================
+
+### 19. Actualizar nombre y descripción
+PUT http://localhost:3000/templates/1
+Content-Type: application/json
+
+{
+  "userId": 1,
+  "name": "Template Básico Actualizado",
+  "description": "Descripción actualizada"
+}
+
+### 20. Actualizar prioridad
+PUT http://localhost:3000/templates/2
+Content-Type: application/json
+
+{
+  "userId": 1,
+  "priority": "LOW"
+}
+
+### 21. Agregar tags a template existente
+PUT http://localhost:3000/templates/1
+Content-Type: application/json
+
+{
+  "userId": 1,
+  "tagIds": [1, 2]
+}
+
+### 22. Cambiar team de template
+PUT http://localhost:3000/templates/1
+Content-Type: application/json
+
+{
+  "userId": 1,
+  "teamId": 1
+}
+
+### 23. Remover team de template (hacerlo personal)
+PUT http://localhost:3000/templates/2
+Content-Type: application/json
+
+{
+  "userId": 1,
+  "teamId": null
+}
+
+### 24. Actualización completa
+PUT http://localhost:3000/templates/3
+Content-Type: application/json
+
+{
+  "userId": 1,
+  "name": "Template Frontend React Actualizado",
+  "description": "Template completo para desarrollo con React y TypeScript",
+  "priority": "HIGH",
+  "teamId": 1,
+  "tagIds": [2, 1]
+}
+
+### ============================================
+### 🔄 USAR TEMPLATES PARA CREAR TAREAS
+### ============================================
+
+### 25. Crear tarea desde template básico
+POST http://localhost:3000/tasks
+Content-Type: application/json
+
+{
+  "title": "Implementar autenticación JWT",
+  "description": "Crear sistema de autenticación con JWT y refresh tokens",
+  "teamId": 1,
+  "userId": 1,
+  "priority": "alta",
+  "dueDate": "2025-12-31T23:59:59.000Z",
+  "originTemplateId": 2
+}
+
+### 26. Crear tarea desde template de bug
+POST http://localhost:3000/tasks
+Content-Type: application/json
+
+{
+  "title": "Fix: Error en login cuando email no existe",
+  "description": "El sistema no maneja correctamente cuando se intenta login con email inexistente",
+  "teamId": 1,
+  "userId": 1,
+  "priority": "alta",
+  "dueDate": "2025-01-15T18:00:00.000Z",
+  "originTemplateId": 4
+}
+
+### 27. Crear tarea desde template frontend
+POST http://localhost:3000/tasks
+Content-Type: application/json
+
+{
+  "title": "Crear componente de navegación",
+  "description": "Desarrollar navbar responsive con menú hamburguesa para mobile",
+  "teamId": 1,
+  "userId": 1,
+  "priority": "media",
+  "originTemplateId": 3
+}
+
+### 28. Verificar tarea creada con template
+GET http://localhost:3000/tasks/1
+
+### ============================================
+### 🗑️ ELIMINAR TEMPLATES
+### ============================================
+
+### 29. Eliminar template (ej: el template básico después de actualizarlo)
+DELETE http://localhost:3000/templates/1
+Content-Type: application/json
+
+{
+  "userId": 1
+}
+
+### 30. Verificar que el template fue eliminado
+GET http://localhost:3000/templates?userId=1
+
+### ============================================
+### ❌ PRUEBAS DE VALIDACIÓN Y ERRORES
+### ============================================
+
+### 31. ❌ Intentar crear template sin nombre
+POST http://localhost:3000/templates
+Content-Type: application/json
+
+{
+  "description": "Template sin nombre",
+  "defaultPriority": "MEDIUM",
+  "userId": 1,
+  "tagIds": []
+}
+
+### 32. ❌ Intentar crear template con nombre duplicado
+POST http://localhost:3000/templates
+Content-Type: application/json
+
+{
+  "name": "Template Backend",
+  "description": "Intentando duplicar nombre",
+  "defaultPriority": "MEDIUM",
+  "userId": 1,
+  "tagIds": []
+}
+
+### 33. ❌ Intentar crear template con team inválido
+POST http://localhost:3000/templates
+Content-Type: application/json
+
+{
+  "name": "Template con team inexistente",
+  "description": "Test",
+  "defaultPriority": "MEDIUM",
+  "userId": 1,
+  "teamId": 999,
+  "tagIds": []
+}
+
+### 34. ❌ Intentar crear template con tags inexistentes
+POST http://localhost:3000/templates
+Content-Type: application/json
+
+{
+  "name": "Template con tags inválidos",
+  "description": "Test",
+  "defaultPriority": "MEDIUM",
+  "userId": 1,
+  "tagIds": [999, 888]
+}
+
+### 35. ❌ Intentar obtener template de otro usuario
+GET http://localhost:3000/templates/2/preview?userId=2
+
+### 36. ❌ Intentar actualizar template de otro usuario
+PUT http://localhost:3000/templates/2
+Content-Type: application/json
+
+{
+  "userId": 2,
+  "name": "Intento de modificación no autorizada"
+}
+
+### 37. ❌ Intentar eliminar template de otro usuario
+DELETE http://localhost:3000/templates/2
+Content-Type: application/json
+
+{
+  "userId": 2
+}
+
+### 38. ❌ Intentar crear template con prioridad inválida
+POST http://localhost:3000/templates
+Content-Type: application/json
+
+{
+  "name": "Template con prioridad inválida",
+  "description": "Test",
+  "defaultPriority": "SUPER_HIGH",
+  "userId": 1,
+  "tagIds": []
+}
+
+### 39. ❌ Intentar actualizar con nombre duplicado
+PUT http://localhost:3000/templates/3
+Content-Type: application/json
+
+{
+  "userId": 1,
+  "name": "Template Backend"
+}
+
+### ============================================
+### 🔍 FLUJO COMPLETO DE PRUEBA - ESCENARIO REAL
+### ============================================
+
+### 📋 ESCENARIO: Equipo usando templates para estandarizar tareas
+
+### PASO 1: Usuario crea template para sprints
+POST http://localhost:3000/templates
+Content-Type: application/json
+
+{
+  "name": "Sprint Planning",
+  "description": "Template para tareas de planificación de sprint",
+  "defaultPriority": "HIGH",
+  "userId": 1,
+  "teamId": 1,
+  "tagIds": [1, 2]
+}
+
+### PASO 2: Obtener preview del template
+GET http://localhost:3000/templates/6/preview?userId=1
+
+### PASO 3: Usar template para crear primera tarea del sprint
+POST http://localhost:3000/tasks
+Content-Type: application/json
+
+{
+  "title": "Sprint 1: Definir arquitectura del proyecto",
+  "description": "Reunión para definir stack tecnológico y estructura del proyecto",
+  "teamId": 1,
+  "userId": 1,
+  "priority": "alta",
+  "dueDate": "2025-01-10T15:00:00.000Z",
+  "originTemplateId": 6
+}
+
+### PASO 4: Crear segunda tarea desde mismo template
+POST http://localhost:3000/tasks
+Content-Type: application/json
+
+{
+  "title": "Sprint 1: Setup inicial del repositorio",
+  "description": "Configurar repositorio, CI/CD y estructura de carpetas",
+  "teamId": 1,
+  "userId": 1,
+  "priority": "alta",
+  "dueDate": "2025-01-12T18:00:00.000Z",
+  "originTemplateId": 6
+}
+
+### PASO 5: Equipo decide que necesitan template para code reviews
+POST http://localhost:3000/templates
+Content-Type: application/json
+
+{
+  "name": "Code Review",
+  "description": "Template para solicitudes de revisión de código",
+  "defaultPriority": "MEDIUM",
+  "userId": 1,
+  "teamId": 1,
+  "tagIds": [1, 2]
+}
+
+### PASO 6: Listar todos los templates del equipo
+GET http://localhost:3000/templates?userId=1&teamId=1
+
+### PASO 7: Actualizar template de sprint con mejor descripción
+PUT http://localhost:3000/templates/6
+Content-Type: application/json
+
+{
+  "userId": 1,
+  "description": "Template estandarizado para todas las tareas de planificación de sprint. Incluye definición de objetivos, asignación de recursos y establecimiento de timeline."
+}
+
+### PASO 8: Verificar tareas creadas desde templates
+GET http://localhost:3000/tasks/1
+
+### PASO 9: Al final del sprint, si el template ya no se usa, eliminarlo
+DELETE http://localhost:3000/templates/7
+Content-Type: application/json
+
+{
+  "userId": 1
+}
+
+### ============================================
+### 📊 VERIFICACIÓN FINAL DEL SISTEMA
+### ============================================
+
+### Ver todos los templates creados
+GET http://localhost:3000/templates?userId=1
+
+### Ver templates del equipo específico
+GET http://localhost:3000/templates?userId=1&teamId=1
+
+### Ver todas las tareas creadas
+GET http://localhost:3000/tasks/1
+
+### Ver etiquetas utilizadas
+GET http://localhost:3000/etiquetas
+
+### Ver equipos
+GET http://localhost:3000/teams
